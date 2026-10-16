@@ -1,0 +1,14 @@
+ticker,security_name,asset_class,sector,role,target_weight_pct,currency
+MSFT,Microsoft Corporation,Stock,Technology,HOLDING,12,USD
+AAPL,Apple Inc.,Stock,Technology,HOLDING,11,USD
+JNJ,Johnson & Johnson,Stock,Health Care,HOLDING,8,USD
+UNH,UnitedHealth Group Incorporated,Stock,Health Care,HOLDING,6,USD
+XLV,Health Care Select Sector SPDR ETF,ETF,Health Care,HOLDING,6,USD
+JPM,JPMorgan Chase & Co.,Stock,Financials,HOLDING,10,USD
+XLF,Financial Select Sector SPDR ETF,ETF,Financials,HOLDING,10,USD
+PG,The Procter & Gamble Company,Stock,Consumer Staples,HOLDING,8,USD
+KO,The Coca-Cola Company,Stock,Consumer Staples,HOLDING,7,USD
+XLP,Consumer Staples Select Sector SPDR ETF,ETF,Consumer Staples,HOLDING,5,USD
+XOM,Exxon Mobil Corporation,Stock,Energy,HOLDING,9,USD
+CVX,Chevron Corporation,Stock,Energy,HOLDING,8,USD
+SPY,SPDR S&P 500 ETF Trust,ETF,Broad Market,BENCHMARK,,USD
