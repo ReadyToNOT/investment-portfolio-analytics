@@ -37,3 +37,57 @@ Filled in by hand on: ____________
   shares were actually worth on that day. Adjusted prices are for returns (Stage 5).
 - `src/reconcile_holdings.py` repeats this check automatically for every holding
   on every day (pandas from the CSVs vs the SQL view).
+
+---
+
+# Hand check 2 (Stage 5): portfolio return on 2024-05-02
+
+Purpose: prove, with a calculator or Excel and the raw files, that the
+time-weighted portfolio return in `fact_daily_portfolio` is right on the day
+after a trade date. 2024-05-01 had two top-ups (T013 MSFT +10, T014 XLF +100),
+so this also proves that trades at the close of day t only change weights
+from day t+1 (methodology.md section 3).
+
+## Method
+
+1. **Shares at the 2024-05-01 close (after that day's trades).** From
+   `data/processed/transactions.csv`, add every trade on or before 2024-05-01.
+   The column below is filled in from the trade log (T001-T014).
+2. **Weights.** From `data/raw/prices_daily.csv`, take the `close` on
+   2024-05-01. Value = shares x close. Weight = value / sum of the 12 values.
+3. **Returns.** Take `adj_close` on 2024-05-01 and 2024-05-02.
+   r = adj_close(05-02) / adj_close(05-01) - 1.
+4. **Portfolio return** = sum of weight x r over the 12 holdings.
+5. Compare with the stored value. In pgAdmin run:
+   `SELECT r_p FROM fact_daily_portfolio WHERE price_date = DATE '2024-05-02';`
+   The two must agree to at least 8 decimal places (Excel shows about 15
+   significant digits).
+
+## Results
+
+Filled in by hand on: ____________
+
+| Ticker | Shares after 05-01 | Close 05-01 | Value | Weight | Adj close 05-01 | Adj close 05-02 | r | Weight x r |
+|---|---|---|---|---|---|---|---|---|
+| AAPL | 63 | | | | | | | |
+| CVX | 55 | | | | | | | |
+| JNJ | 54 | | | | | | | |
+| JPM | 71 | | | | | | | |
+| KO | 125 | | | | | | | |
+| MSFT | 45 | | | | | | | |
+| PG | 53 | | | | | | | |
+| UNH | 11 | | | | | | | |
+| XLF | 400 | | | | | | | |
+| XLP | 74 | | | | | | | |
+| XLV | 47 | | | | | | | |
+| XOM | 86 | | | | | | | |
+| **Total** | | | | **1.0000** | | | | **r_p (by hand)** = |
+
+r_p in fact_daily_portfolio: ____________  Difference: ____________
+
+## Notes
+
+- Weights use the unadjusted `close` (what the shares were worth); returns use
+  `adj_close` (includes dividends). Same split as Stage 4.
+- MSFT shows 45 and XLF 400 because the 2024-05-01 buys happened at that
+  day's close, before the 05-02 return is earned.
