@@ -91,3 +91,73 @@ r_p in fact_daily_portfolio: ____________  Difference: ____________
   `adj_close` (includes dividends). Same split as Stage 4.
 - MSFT shows 45 and XLF 400 because the 2024-05-01 buys happened at that
   day's close, before the 05-02 return is earned.
+
+---
+
+# Hand check 3 (Stage 6): monthly rebalance on 2023-11-30
+
+Purpose: prove, with a calculator or Excel and the raw prices file, that the
+S2_MONTHLY backtest buys the right starting positions, values them correctly
+a month later, rebalances back to the targets and charges the 10 bp cost
+correctly (docs/backtest_rules.md sections 2 and 4).
+
+## Method
+
+1. **Starting value.** V0 = 100,000 / 1.001 (the base-day purchase pays
+   0.10 of one percent of every dollar bought, out of the 100,000).
+2. **Starting units.** From `data/raw/prices_daily.csv`, take `adj_close` (not
+   `close`) on 2023-11-01. Units = target weight x V0 / adj_close.
+3. **Value before rebalancing.** Take `adj_close` on 2023-11-30.
+   Value = units x adj_close(11-30). V_pre = sum of the 12 values.
+4. **Stored numbers.** In pgAdmin run:
+
+       SELECT price_date, value
+       FROM fact_backtest_daily
+       WHERE strategy_code = 'S2_MONTHLY'
+         AND price_date IN (DATE '2023-11-01', DATE '2023-11-30')
+       ORDER BY price_date;
+
+       SELECT ticker, side, units, price, traded_value, cost
+       FROM fact_backtest_trades
+       WHERE strategy_code = 'S2_MONTHLY' AND price_date = DATE '2023-11-30'
+       ORDER BY ticker;
+
+   V' = the stored value on 2023-11-30 (after the trades and the cost).
+5. **Targets hit.** For each holding: target value = weight x V'.
+   Traded value = |target value - value before|. BUY if the target is larger.
+   Compare with `traded_value` and `side`.
+6. **Cost.** Cost = 0.001 x sum of traded values. Then check
+   V' + cost = V_pre (to the cent or better).
+
+## Results
+
+Filled in by hand on: ____________
+
+V0 (by hand) = ____________   Stored value on 2023-11-01 = ____________
+
+| Ticker | Weight | Adj close 11-01 | Units | Adj close 11-30 | Value before | Weight x V' | Traded value (by hand) | Side | Stored traded_value |
+|---|---|---|---|---|---|---|---|---|---|
+| AAPL | 0.11 | | | | | | | | |
+| CVX | 0.08 | | | | | | | | |
+| JNJ | 0.08 | | | | | | | | |
+| JPM | 0.10 | | | | | | | | |
+| KO | 0.07 | | | | | | | | |
+| MSFT | 0.12 | | | | | | | | |
+| PG | 0.08 | | | | | | | | |
+| UNH | 0.06 | | | | | | | | |
+| XLF | 0.10 | | | | | | | | |
+| XLP | 0.05 | | | | | | | | |
+| XLV | 0.06 | | | | | | | | |
+| XOM | 0.09 | | | | | | | | |
+| **Total** | **1.00** | | | | **V_pre =** | **V' =** | **sum =** | | |
+
+Cost = 0.001 x sum = ____________   V' + cost = ____________   V_pre - (V' + cost) = ____________
+
+## Notes
+
+- Units are "adjusted units" (value / adj_close), not real shares, because the
+  backtest trades at adjusted prices so dividends are reinvested automatically.
+- Use the same CSV that the run used. yfinance restates old adj_close values
+  when new dividends arrive, so a fresh download can differ slightly.
+- You never have to solve the cost equation by hand: V' comes from the
+  database, and steps 5 and 6 check that it is consistent.
