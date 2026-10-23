@@ -16,3 +16,11 @@ Thumbs.db
 # Power BI temp/cache files (the .pbix itself is tracked)
 *.pbi*.tmp
 .pbi/
+# Yahoo Finance data stays on this computer only (Yahoo's terms restrict
+# redistribution). Re-create the raw files with: python src/ingest_prices.py
+data/raw/prices_daily.csv
+data/raw/dividends.csv
+data/raw/splits.csv
+# Hand-check workbooks contain copied Yahoo price rows; results are in docs/reconciliation.md
+docs/hand_checks/
+data/processed/hand_check*

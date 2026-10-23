@@ -84,7 +84,7 @@ Key definitions (full detail in [`docs/methodology.md`](docs/methodology.md)):
 
 - **Survivorship and hindsight bias.** The holdings were chosen in 2026, knowing they still exist and are large companies.
 - **One market path.** About three years of history with no significance test, so differences between strategies may be noise.
-- **Simplified trading.** Fills at the closing price, a flat cost per trade, and no taxes, slippage or market impact. The portfolio holds no cash.
+- **Simplified trading.** Fills at the closing price, a flat cost per trade, and no taxes, slippage or market impact. The actual portfolio holds no cash; new money funds each buy.
 - **Data source.** yfinance is unofficial and can break, and it restates older adjusted prices when new dividends are paid, so a fresh download may shift historical numbers slightly.
 - **Partial date ranges.** When a shorter date range is selected in the dashboard, holding contributions use simple linking, so later days carry slightly more weight.
 
@@ -98,7 +98,7 @@ Key definitions (full detail in [`docs/methodology.md`](docs/methodology.md)):
    ```
 2. In pgAdmin, create an empty database named `portfolio_analytics` and a user that can write to it.
 3. Copy `.env.example` to `.env` and fill in your database user, password and FRED API key. `.env` is excluded by `.gitignore` and never committed.
-4. From the project folder, run these one at a time. Each script prints PASS/FAIL lines and must finish with everything passing.
+4. From the project folder, run these one at a time. The check and build scripts print PASS/FAIL lines, and every line must say PASS before you run the next script.
    ```
    python src/check_setup.py
    python src/ingest_prices.py
@@ -112,18 +112,18 @@ Key definitions (full detail in [`docs/methodology.md`](docs/methodology.md)):
    ```
 5. Open `dashboard/portfolio_analytics.pbix`. Click **Home → Refresh** and enter your database user and password when asked. Check that the Notes page shows the new "Data through" date.
 
-Step 4 downloads fresh data, so your numbers will cover a later end date and will differ from the ones above. To recreate the exact numbers in this README, skip `ingest_prices.py` and `ingest_rates.py` and use the saved CSVs in `data/raw/`. More detail is in [`docs/powerbi_model.md`](docs/powerbi_model.md).
+Step 4 downloads fresh data, so your numbers will cover a later end date and will differ slightly from the ones above (yfinance also restates older adjusted prices when new dividends are paid). The Yahoo Finance price, dividend and split files are **not included in this repository**, because Yahoo's terms of service restrict redistributing its data; `src/ingest_prices.py` downloads your own copy. The FRED rate file, the download log and the hand-typed sample inputs are included. More detail is in [`docs/powerbi_model.md`](docs/powerbi_model.md).
 
 ## Project layout
 
 | Folder | Contents |
 |---|---|
-| `data/raw` | Raw downloads exactly as received (prices, dividends, splits, DTB3, download log) |
+| `data/raw` | Raw downloads exactly as received. Only the FRED rate file and the download log are published; the Yahoo files are created locally by `src/ingest_prices.py` (see `data/raw/README.md`) |
 | `data/processed` | Hand-typed sample inputs: security lookup and trade log |
 | `sql` | Schema, model load, views, validation and reconciliation queries (01 to 10) |
 | `src` | Python pipeline: ingest, checks, load, analysis, backtest |
 | `dashboard` | Power BI file |
-| `docs` | Methodology, backtest rules, DAX measures, Power BI model, hand checks, screenshots |
+| `docs` | Methodology, backtest rules, DAX measures, Power BI model, hand-check results, recording plan, screenshots |
 
 ## Tools
 
